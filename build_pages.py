@@ -105,6 +105,9 @@ def page(f):
     if li:
         ld["sameAs"] = [li]
     site = WEB.get(name)
+    crunch = r[7] if "crunchbase.com/organization/" in r[7] else None
+    if crunch:
+        ld["worksFor"]["sameAs"] = [crunch]
     if site:
         ld["worksFor"]["url"] = site
     body = f"""<!doctype html>
@@ -137,7 +140,7 @@ def page(f):
    <h1>{e(name)}</h1>
    <p class="lead">Founder of <b>{e(company)}</b>, {e(route)}.</p>
    {f'<p class="fp-desc">{e(desc_extra)}</p>' if desc_extra else ''}
-   <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a>{f'<a class="btn btn-alt" href="{e(site)}" rel="noopener" target="_blank">Visit {e(company)}</a>' if site else ''}<a class="textlink" href="../../#founders">See her on the map</a></div>
+   <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a>{f'<a class="btn btn-alt" href="{e(site)}" rel="noopener" target="_blank">Visit {e(company)}</a>' if site else ''}{f'<a class="btn btn-alt" href="{e(crunch)}" rel="noopener" target="_blank">{e(company)} on Crunchbase</a>' if crunch else ''}<a class="textlink" href="../../#founders">See her on the map</a></div>
   </div>
   <dl class="fp-facts">
    <div><dt>Where she started</dt><dd>{e(started)}</dd></div>
