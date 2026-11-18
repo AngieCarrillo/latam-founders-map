@@ -20,6 +20,7 @@ data = (ROOT / "founders-data.js").read_text()
 FW = json.loads(re.search(r"window\.FW=(\[.*?\]);\n", data).group(1))
 FC = json.loads(re.search(r"window\.FC=(\{.*?\});\n", data).group(1))
 LI = json.loads((ROOT / "founders-linkedin.json").read_text())
+WEB = json.loads((ROOT / "founders-websites.json").read_text()) if (ROOT / "founders-websites.json").exists() else {}
 INDEX = (ROOT / "index.html").read_text()
 PEOPLE = json.loads(re.search(r"const PEOPLE=(\{.*?\});", INDEX).group(1))
 
@@ -103,6 +104,9 @@ def page(f):
     }
     if li:
         ld["sameAs"] = [li]
+    site = WEB.get(name)
+    if site:
+        ld["worksFor"]["url"] = site
     body = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -133,7 +137,7 @@ def page(f):
    <h1>{e(name)}</h1>
    <p class="lead">Founder of <b>{e(company)}</b>, {e(route)}.</p>
    {f'<p class="fp-desc">{e(desc_extra)}</p>' if desc_extra else ''}
-   <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a><a class="textlink" href="../../#founders">See her on the map</a></div>
+   <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a>{f'<a class="btn btn-alt" href="{e(site)}" rel="noopener" target="_blank">Visit {e(company)}</a>' if site else ''}<a class="textlink" href="../../#founders">See her on the map</a></div>
   </div>
   <dl class="fp-facts">
    <div><dt>Where she started</dt><dd>{e(started)}</dd></div>

@@ -116,7 +116,7 @@
   function row(p) {
     const route = p.src === 4 && p.home ? `${cflag(p.dp)} ${esc(p.c)}` : p.src === 4 ? `${esc(cname(p.o))} → ${esc(p.c)}` : p.aurora ? `${cflag(p.dp)} Builds in ${esc(p.c)}` : p.home ? `${cflag(p.o)} ${esc(p.c)}` : `${esc(cname(p.o))} → ${esc(p.c)}`;
     const prof = window.FSLUG && window.FSLUG[p.n];
-    return `<a class="f-row ${cls(p)}${st.hot === p.i ? " hot" : ""}" href="${esc(prof ? "founders/" + prof + "/" : p.u)}"${prof ? "" : ' target="_blank" rel="noopener"'} data-p="${p.i}">
+    return `<a class="f-row ${cls(p)}${st.hot === p.i ? " hot" : ""}" href="${esc(prof ? (window.FSLUG_BASE || "founders/") + prof + "/" : p.u)}"${prof && !window.FSLUG_BASE ? "" : ' target="_blank" rel="noopener"'} data-p="${p.i}">
       <span class="f-av" aria-hidden="true">${initials(p.n)}</span>
       <span class="f-who"><b>${esc(p.n)}<sup class="f-note" title="${["", "Startupeable Diaspora map", "Aurora Top 30", "Added from my network and research", "Forbes México 50 angels", "Harlem Capital Black & Latino Founder Report"][p.src]}">${NOTE(p)}</sup>${p.inv ? `<span class="f-role">Investor</span>` : ""}</b><small>${esc(p.co)}</small>${p.desc ? `<span class="f-desc">${esc(p.desc)}</span>` : ""}<span class="f-route">${route}</span></span>
       <span class="f-go" aria-hidden="true">↗</span></a>`;
