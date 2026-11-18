@@ -20,7 +20,8 @@
   const byTopo = {}; Object.entries(FC).forEach(([id, v]) => { byTopo[v[3]] = id; });
 
   const st = { sel: null, dest: null, kind: "all", q: "", hot: null };
-  const visible = () => P.filter(p => inKind(p) && (!st.sel || p.o === st.sel));
+  // a country shows founders who started there AND founders who build there today
+  const visible = () => P.filter(p => inKind(p) && (!st.sel || p.o === st.sel || p.dp === st.sel));
 
   /* ---------- globe ---------- */
   const W = 600, R0 = 282;
@@ -34,7 +35,7 @@
   const grat = d3.geoGraticule10();
   // shaded like the Investors map: darker = more founders who started in that country
   const SHADE = n => !n ? null : n <= 3 ? "var(--map-1)" : n <= 15 ? "var(--map-2)" : n <= 40 ? "var(--map-3)" : "var(--map-4)";
-  const startCount = id => P.filter(p => inKind(p) && p.o === id).length;
+  const startCount = id => P.filter(p => inKind(p) && (p.o === id || p.dp === id)).length;
   const countries = gLand.selectAll("path").data(land).join("path")
     .attr("class", "i-land")
     .on("click", (e, d) => { const id = byTopo[d.properties.name]; if (id && startCount(id)) select(id); })
@@ -91,7 +92,8 @@
 
   function renderList() {
     const base = P.filter(inKind);
-    const counts = d3.rollups(base, v => v.length, p => p.o).sort((a, b) => b[1] - a[1] || cname(a[0]).localeCompare(cname(b[0])));
+    const tally = new Map(); base.forEach(p => new Set([p.o, p.dp]).forEach(c => tally.set(c, (tally.get(c) || 0) + 1)));
+    const counts = [...tally].sort((a, b) => b[1] - a[1] || cname(a[0]).localeCompare(cname(b[0])));
     const q = st.q;
     const nq = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
     const cs = counts.filter(([id]) => !q || nq(cname(id)).includes(nq(q)));
@@ -125,18 +127,24 @@
     let h = "";
     if (st.sel) h += `<button class="f-back" id="fBack">← All countries</button>`;
     h += `<h3>${st.sel ? cflag(st.sel) + " " + esc(cname(st.sel)) : "Where she started, where she builds"}</h3>`;
-    const nI = vis.filter(p => p.inv).length, nF = vis.length - nI;
-    h += `<p>${nF} women founder${nF === 1 ? "" : "s"}</p>`;
-    // destination chips
-    const dests = d3.rollups(vis, v => v.length, p => p.dp).sort((a, b) => (a[0] === st.sel) - (b[0] === st.sel) || b[1] - a[1]);
+    const started = st.sel ? vis.filter(p => p.o === st.sel) : vis;
+    const arrived = st.sel ? vis.filter(p => p.dp === st.sel && p.o !== st.sel) : [];
+    h += st.sel ? `<p>${started.length} started here · ${arrived.length} build here today, born elsewhere</p>` : `<p>${vis.length} women founders</p>`;
+    // where the founders who started here build today
+    const dests = d3.rollups(started, v => v.length, p => p.dp).sort((a, b) => (a[0] === st.sel) - (b[0] === st.sel) || b[1] - a[1]);
     h += `<div class="chips f-dests">` + dests.map(([id, n]) => {
       const lbl = st.sel && id === st.sel ? `${cflag(id)} Stayed in ${esc(cname(id))}` : `${cflag(id)} ${esc(cname(id))}`;
       return `<button class="chip" data-d="${id}" aria-pressed="${st.dest === id}">${lbl} · ${n}</button>`;
     }).join("") + `</div>`;
     h += `<p class="f-hint">Click a name to open where she was listed.</p>`;
-    if (founders.length) h += `<div class="group"><h4>Founders · ${founders.length}</h4>${founders.map(row).join("")}</div>`;
+    const sList = started.filter(p => !st.dest || p.dp === st.dest);
+    if (!st.sel) { if (sList.length) h += `<div class="group"><h4>Founders · ${sList.length}</h4>${sList.map(row).join("")}</div>`; }
+    else {
+      if (sList.length) h += `<div class="group"><h4>Started in ${esc(cname(st.sel))} · ${sList.length}</h4>${sList.map(row).join("")}</div>`;
+      if (arrived.length && !st.dest) h += `<div class="group"><h4>Build in ${esc(cname(st.sel))} today · ${arrived.length}</h4>${arrived.map(row).join("")}</div>`;
+    }
     if (!listed.length) h += `<p class="muted">Nobody here with this filter.</p>`;
-    const notes = new Set(listed.map(NOTE));
+    const notes = new Set(vis.map(NOTE));
     h += `<ol class="f-notes">` +
       (notes.has("1") ? `<li value="1">From Aurora’s <a href="https://www.auroratechaward.com/top-30-women-founders-latam" target="_blank" rel="noopener">Top 30 Women Founders to Watch in LatAm</a>. The list gives the country she builds in, not a city or birthplace.</li>` : "") +
       (notes.has("2") ? `<li value="2">Added from <a href="https://www.startupeable.com/diaspora/" target="_blank" rel="noopener">Startupeable’s Diaspora map</a>: women founders born in or building in Latin America. Founders only: executives left out, investors are on the Investors map.</li>` : "") +
