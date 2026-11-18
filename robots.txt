@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://angiecarrillo.github.io/latam-founders-map/sitemap.xml

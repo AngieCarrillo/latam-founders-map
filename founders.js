@@ -115,7 +115,8 @@
   const panel = document.getElementById("fPanel");
   function row(p) {
     const route = p.src === 4 && p.home ? `${cflag(p.dp)} ${esc(p.c)}` : p.src === 4 ? `${esc(cname(p.o))} → ${esc(p.c)}` : p.aurora ? `${cflag(p.dp)} Builds in ${esc(p.c)}` : p.home ? `${cflag(p.o)} ${esc(p.c)}` : `${esc(cname(p.o))} → ${esc(p.c)}`;
-    return `<a class="f-row ${cls(p)}${st.hot === p.i ? " hot" : ""}" href="${esc(p.u)}" target="_blank" rel="noopener" data-p="${p.i}">
+    const prof = window.FSLUG && window.FSLUG[p.n];
+    return `<a class="f-row ${cls(p)}${st.hot === p.i ? " hot" : ""}" href="${esc(prof ? "founders/" + prof + "/" : p.u)}"${prof ? "" : ' target="_blank" rel="noopener"'} data-p="${p.i}">
       <span class="f-av" aria-hidden="true">${initials(p.n)}</span>
       <span class="f-who"><b>${esc(p.n)}<sup class="f-note" title="${["", "Startupeable Diaspora map", "Aurora Top 30", "Added from my network and research", "Forbes México 50 angels", "Harlem Capital Black & Latino Founder Report"][p.src]}">${NOTE(p)}</sup>${p.inv ? `<span class="f-role">Investor</span>` : ""}</b><small>${esc(p.co)}</small>${p.desc ? `<span class="f-desc">${esc(p.desc)}</span>` : ""}<span class="f-route">${route}</span></span>
       <span class="f-go" aria-hidden="true">↗</span></a>`;
@@ -136,7 +137,7 @@
       const lbl = st.sel && id === st.sel ? `${cflag(id)} Stayed in ${esc(cname(id))}` : `${cflag(id)} ${esc(cname(id))}`;
       return `<button class="chip" data-d="${id}" aria-pressed="${st.dest === id}">${lbl} · ${n}</button>`;
     }).join("") + `</div>`;
-    h += `<p class="f-hint">Click a name to open where she was listed.</p>`;
+    h += `<p class="f-hint">${window.FSLUG ? "Click a name to open her page, with her LinkedIn and investors." : "Click a name to open where she was listed."}</p>`;
     const sList = started.filter(p => !st.dest || p.dp === st.dest);
     if (!st.sel) { if (sList.length) h += `<div class="group"><h4>Founders · ${sList.length}</h4>${sList.map(row).join("")}</div>`; }
     else {

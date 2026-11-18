@@ -102,3 +102,16 @@ svg.globe:active { cursor: grabbing; }
 .figures-light b { color: var(--color-ink); }
 .figures-light > div { border-left-color: var(--color-rule); }
 .src-note { margin-top: var(--space-md); font-size: var(--text-xs); color: var(--color-muted); max-width: 80ch; }
+/* founder profile pages */
+.fp-hero .container { align-items: start; }
+.fp-desc { margin-top: var(--space-md); color: var(--color-muted); max-width: 60ch; }
+.fp-facts { display: grid; gap: var(--space-md); padding-top: var(--space-md); border-top: 2px solid var(--color-ink); margin: 0; }
+.fp-facts dt { font-size: var(--text-xs); color: var(--color-muted); }
+.fp-facts dd { margin: 2px 0 0; font-family: var(--font-display); font-size: var(--text-xl); }
+.fp-h1 { font-size: var(--text-section); line-height: 1.05; margin-bottom: var(--space-sm); }
+.fp-h2 { font-size: var(--text-title); margin: var(--space-xl) 0 var(--space-md); }
+.fp-list { columns: 2 240px; padding-left: 18px; }
+.fp-peers { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-xs) var(--space-lg); }
+.fp-peers li { display: grid; padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule); }
+.fp-peers a { font-weight: 700; color: var(--color-ink); }
+.fp-peers span { font-size: var(--text-xs); color: var(--color-muted); }

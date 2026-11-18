@@ -899,6 +899,7 @@ render();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script src="founders-data.js"></script>
+<script src="founders-slugs.js"></script>
 <script>
 document.getElementById("invTotal").textContent=D.length;
 (()=>{const box=document.getElementById("stageChips");[[null,"All stages"],["S","Seed"],["E","Early (Series A–B)"],["L","Late (Series C+)"]].forEach(([k,v])=>{const b=document.createElement("button");b.className="chip";b.textContent=v;b.setAttribute("aria-pressed",k===stageSel);b.onclick=()=>{stageSel=k;box.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===b));render()};box.appendChild(b)});})();

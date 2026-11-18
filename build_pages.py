@@ -1,0 +1,202 @@
+"""Build one SEO page per founder, a founders index, sitemap.xml and robots.txt.
+
+Run from this folder:  python3 -I build_pages.py
+Reads founders-data.js (FW, FC), founders-linkedin.json and index.html (PEOPLE, for "Backed:").
+Change BASE when the map moves to its own domain (e.g. https://map.iangie.com/).
+"""
+import html
+import json
+import re
+import unicodedata
+import urllib.parse
+from datetime import date
+from pathlib import Path
+
+BASE = "https://angiecarrillo.github.io/latam-founders-map/"
+ROOT = Path(__file__).resolve().parent
+TODAY = date.today().isoformat()
+
+data = (ROOT / "founders-data.js").read_text()
+FW = json.loads(re.search(r"window\.FW=(\[.*?\]);\n", data).group(1))
+FC = json.loads(re.search(r"window\.FC=(\{.*?\});\n", data).group(1))
+LI = json.loads((ROOT / "founders-linkedin.json").read_text())
+INDEX = (ROOT / "index.html").read_text()
+PEOPLE = json.loads(re.search(r"const PEOPLE=(\{.*?\});", INDEX).group(1))
+
+SOURCES = {
+    1: ("Startupeable’s Diaspora map", "https://www.startupeable.com/diaspora/"),
+    2: ("Aurora’s Top 30 Women Founders to Watch in LatAm", "https://www.auroratechaward.com/top-30-women-founders-latam"),
+    3: ("Angelica Carrillo’s network and research", None),
+    5: ("Harlem Capital and Crunchbase’s 2022 Black & Latino Founder Report", "https://airtable.com/appTolMiRbOFudS3O/shrkMKANni00yoPru/tblRVApDjCyG3m028"),
+}
+e = lambda s: html.escape(str(s), quote=True)
+
+
+def slugify(name):
+    s = unicodedata.normalize("NFD", name).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+
+
+def flag(a2):
+    return "".join(chr(127397 + ord(c)) for c in a2.upper())
+
+
+def cname(cid):
+    return FC[cid][0]
+
+
+def company_of(r):
+    co = r[3]
+    if r[1] == 2:  # Aurora: "Company · Sector · Stage"
+        return co.split(" · ")[0]
+    if r[1] == 1 and "," in co:  # wishlist roles: "Co-founder, Nubank"
+        return co.split(",")[-1].strip()
+    return co
+
+
+# investors on the map that backed each founder
+backers = {}
+for firm, note in PEOPLE.items():
+    m = re.search(r"Backed: ([^·]+)", note)
+    if not m:
+        continue
+    for item in m.group(1).split(","):
+        backers.setdefault(item.split(" (")[0].strip(), []).append(firm)
+
+founders, used = [], set()
+for r in FW:
+    slug = slugify(r[0])
+    while slug in used:
+        slug += "-2"
+    used.add(slug)
+    founders.append({"r": r, "slug": slug})
+
+css = '<link rel="stylesheet" href="../../site.css">\n<link rel="stylesheet" href="../../founders.css">'
+
+
+def page(f):
+    r = f["r"]
+    name, src, o, dp, city = r[0], r[1], r[2], r[4], r[5]
+    company = company_of(r)
+    desc_extra = r[8] if len(r) > 8 and r[8] else ""
+    started = f"{flag(FC[o][1])} {cname(o)}"
+    builds = city if src == 2 else (f"{city}, {cname(dp)}" if city not in (cname(dp),) else cname(dp))
+    moved = o != dp
+    li = LI.get(name)
+    li_url = li or "https://www.linkedin.com/search/results/people/?keywords=" + urllib.parse.quote(f"{name} {company}")
+    li_label = "View her LinkedIn profile" if li else "Find her on LinkedIn"
+    title = f"{name}, founder of {company} | Latina Founders Map"
+    route = f"from {cname(o)}, building in {builds}" if moved else f"building in {builds}"
+    meta = f"{name} is the founder of {company}, {route}. See her investors and more Latina founders on the Latina Founders Map."
+    url = f"{BASE}founders/{f['slug']}/"
+    peers = [g for g in founders if g is not f and g["r"][2] == o][:8]
+    inv = backers.get(name, [])
+    sname, slink = SOURCES.get(src, ("", None))
+    ld = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": name,
+        "jobTitle": "Founder",
+        "worksFor": {"@type": "Organization", "name": company},
+        "homeLocation": {"@type": "Place", "name": builds},
+        "url": url,
+    }
+    if li:
+        ld["sameAs"] = [li]
+    body = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(title)}</title>
+<meta name="description" content="{e(meta)}">
+<link rel="canonical" href="{e(url)}">
+<meta property="og:title" content="{e(name)}, founder of {e(company)}">
+<meta property="og:description" content="{e(meta)}">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="{e(url)}">
+{css}
+<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
+</head>
+<body>
+<header class="nav">
+ <div class="container">
+  <a class="wordmark" href="../../">Latina Founders Map</a>
+  <nav class="nav-links" aria-label="Main"><a href="../">All founders</a><a class="btn" href="../../">Open the map</a></nav>
+ </div>
+</header>
+<main>
+<section class="page-hero fp-hero">
+ <div class="container">
+  <div>
+   <p class="eyebrow-task">Founder profile</p>
+   <h1>{e(name)}</h1>
+   <p class="lead">Founder of <b>{e(company)}</b>, {e(route)}.</p>
+   {f'<p class="fp-desc">{e(desc_extra)}</p>' if desc_extra else ''}
+   <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a><a class="textlink" href="../../#founders">See her on the map</a></div>
+  </div>
+  <dl class="fp-facts">
+   <div><dt>Where she started</dt><dd>{e(started)}</dd></div>
+   <div><dt>Where she builds today</dt><dd>{e(builds)}</dd></div>
+   <div><dt>Company</dt><dd>{e(company)}</dd></div>
+  </dl>
+ </div>
+</section>
+{f'''<section class="section tight"><div class="container"><h2 class="fp-h2">Investors on the map who backed her</h2><ul class="fp-list">{"".join(f"<li>{e(i)}</li>" for i in inv)}</ul></div></section>''' if inv else ''}
+<section class="section tight">
+ <div class="container">
+  <h2 class="fp-h2">More Latina founders from {e(cname(o))}</h2>
+  <ul class="fp-peers">{"".join(f'<li><a href="../{g["slug"]}/">{e(g["r"][0])}</a><span>{e(company_of(g["r"]))}</span></li>' for g in peers)}</ul>
+  <p class="src-note">Listed from {f'<a href="{e(slink)}" rel="noopener">{e(sname)}</a>' if slink else e(sname)}. Corrections or a better LinkedIn link? Message Angelica Carrillo on <a href="https://www.linkedin.com/in/iangie" rel="noopener">LinkedIn</a>.</p>
+ </div>
+</section>
+</main>
+<footer class="footer"><div class="container"><div><p class="closing">Made by Angelica Carrillo.</p><small>Part of the Latina Founders Map: where Latina founders started, where they build today, and the investors, programs and prizes that back them.</small></div><nav aria-label="Footer"><a href="../../">The map</a><a href="../">All founders</a><a href="https://www.linkedin.com/in/iangie" rel="noopener">LinkedIn</a></nav></div></footer>
+</body>
+</html>
+"""
+    out = ROOT / "founders" / f["slug"]
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "index.html").write_text(body)
+
+
+for f in founders:
+    page(f)
+
+# founders index, grouped by where she started
+groups = {}
+for f in founders:
+    groups.setdefault(f["r"][2], []).append(f)
+order = sorted(groups, key=lambda c: (-len(groups[c]), cname(c)))
+idx = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All {len(founders)} Latina founders | Latina Founders Map</title>
+<meta name="description" content="Directory of {len(founders)} Latina founders by country: where they started, where they build today and who backed them.">
+<link rel="canonical" href="{BASE}founders/">
+<link rel="stylesheet" href="../site.css">
+<link rel="stylesheet" href="../founders.css">
+</head>
+<body>
+<header class="nav"><div class="container"><a class="wordmark" href="../">Latina Founders Map</a><nav class="nav-links" aria-label="Main"><a class="btn" href="../">Open the map</a></nav></div></header>
+<main><section class="section"><div class="container">
+<h1 class="fp-h1">All {len(founders)} Latina founders</h1>
+<p class="lead">Grouped by where she started. Each name opens her page.</p>
+{"".join(f'<h2 class="fp-h2">{flag(FC[c][1])} {e(cname(c))} · {len(groups[c])}</h2><ul class="fp-peers">' + "".join(f'<li><a href="{g["slug"]}/">{e(g["r"][0])}</a><span>{e(company_of(g["r"]))}</span></li>' for g in sorted(groups[c], key=lambda g: g["r"][0])) + "</ul>" for c in order)}
+</div></section></main>
+<footer class="footer"><div class="container"><div><p class="closing">Made by Angelica Carrillo.</p></div><nav aria-label="Footer"><a href="../">The map</a><a href="https://www.linkedin.com/in/iangie" rel="noopener">LinkedIn</a></nav></div></footer>
+</body></html>
+"""
+(ROOT / "founders" / "index.html").write_text(idx)
+
+urls = [BASE, f"{BASE}founders/"] + [f"{BASE}founders/{f['slug']}/" for f in founders]
+(ROOT / "sitemap.xml").write_text(
+    '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + "".join(f"  <url><loc>{u}</loc><lastmod>{TODAY}</lastmod></url>\n" for u in urls)
+    + "</urlset>\n"
+)
+(ROOT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}sitemap.xml\n")
+(ROOT / "founders-slugs.js").write_text("// generated by build_pages.py: founder name -> profile page slug\nwindow.FSLUG=" + json.dumps({f["r"][0]: f["slug"] for f in founders}, ensure_ascii=False) + ";\n")
+print(len(founders), "founder pages,", len(urls), "sitemap URLs")
