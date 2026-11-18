@@ -98,3 +98,4 @@ svg.globe:active { cursor: grabbing; }
 .msg-examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); }
 .msg-examples .msg { white-space: pre-wrap; }
 .eyebrow-task { font-size: var(--text-sm); font-weight: 700; color: var(--color-muted); margin-bottom: var(--space-xs); }
+@media (min-width: 60.01rem) { .figures { grid-template-columns: repeat(4, minmax(0, 1fr)); } .figures b { font-size: var(--text-display-s); } }
