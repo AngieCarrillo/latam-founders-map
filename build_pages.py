@@ -28,6 +28,7 @@ SOURCES = {
     1: ("Startupeable’s Diaspora map", "https://www.startupeable.com/diaspora/"),
     2: ("Aurora’s Top 30 Women Founders to Watch in LatAm", "https://www.auroratechaward.com/top-30-women-founders-latam"),
     3: ("Angelica Carrillo’s network and research", None),
+    6: ("Y Combinator’s Latin America companies", "https://www.ycombinator.com/companies?regions=Latin%20America"),
     5: ("Harlem Capital and Crunchbase’s 2022 Black & Latino Founder Report", "https://airtable.com/appTolMiRbOFudS3O/shrkMKANni00yoPru/tblRVApDjCyG3m028"),
 }
 e = lambda s: html.escape(str(s), quote=True)

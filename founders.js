@@ -118,7 +118,7 @@
     const prof = window.FSLUG && window.FSLUG[p.n];
     return `<a class="f-row ${cls(p)}${st.hot === p.i ? " hot" : ""}" href="${esc(prof ? (window.FSLUG_BASE || "founders/") + prof + "/" : p.u)}"${prof && !window.FSLUG_BASE ? "" : ' target="_blank" rel="noopener"'} data-p="${p.i}">
       <span class="f-av" aria-hidden="true">${initials(p.n)}</span>
-      <span class="f-who"><b>${esc(p.n)}<sup class="f-note" title="${["", "Startupeable Diaspora map", "Aurora Top 30", "Added from my network and research", "Forbes México 50 angels", "Harlem Capital Black & Latino Founder Report"][p.src]}">${NOTE(p)}</sup>${p.inv ? `<span class="f-role">Investor</span>` : ""}</b><small>${esc(p.co)}</small>${p.desc ? `<span class="f-desc">${esc(p.desc)}</span>` : ""}<span class="f-route">${route}</span></span>
+      <span class="f-who"><b>${esc(p.n)}<sup class="f-note" title="${["", "Startupeable Diaspora map", "Aurora Top 30", "Added from my network and research", "Forbes México 50 angels", "Harlem Capital Black & Latino Founder Report", "Y Combinator LatAm companies"][p.src]}">${NOTE(p)}</sup>${p.inv ? `<span class="f-role">Investor</span>` : ""}</b><small>${esc(p.co)}</small>${p.desc ? `<span class="f-desc">${esc(p.desc)}</span>` : ""}<span class="f-route">${route}</span></span>
       <span class="f-go" aria-hidden="true">↗</span></a>`;
   }
   function renderPanel() {
@@ -151,6 +151,7 @@
       (notes.has("2") ? `<li value="2">Added from <a href="https://www.startupeable.com/diaspora/" target="_blank" rel="noopener">Startupeable’s Diaspora map</a>: women founders born in or building in Latin America. Founders only: executives left out, investors are on the Investors map.</li>` : "") +
       (notes.has("3") ? `<li value="3">Added from my own network and research. Her name links to her LinkedIn or a profile of her work.</li>` : "") +
       (notes.has("5") ? `<li value="5">From <a href="https://airtable.com/appTolMiRbOFudS3O/shrkMKANni00yoPru/tblRVApDjCyG3m028" target="_blank" rel="noopener">Harlem Capital and Crunchbase’s 2022 Black &amp; Latino Founder Report</a>, Latina founders of US companies. The report gives the US state, not her birthplace: unless I know where she was born, she starts and builds in the US. Her name links to the company on Crunchbase.</li>` : "") +
+      (notes.has("6") ? `<li value="6">From Y Combinator’s Latin America companies (dataset of November 2025): women among the active founders listed, with the LinkedIn YC lists for her. Her company links to its YC page.</li>` : "") +
       (notes.has("4") ? `<li value="4">From <a href="https://forbes.com.mx/los-50-angeles-inversionistas-mas-influyentes-de-latinoamerica/" target="_blank" rel="noopener">Forbes México’s 50 most influential angel investors in Latin America</a> (with Pygma, October 2025). The list gives a country, not a city.</li>` : "") +
       `</ol>`;
     // bridge to the investor map
