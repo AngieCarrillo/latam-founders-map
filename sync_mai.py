@@ -56,6 +56,9 @@ shutil.copy2(SRC / "mai-theme.css", DST / "mai-theme.css")
 for h in DST.rglob("*.html"):
     rel = "../" * (len(h.relative_to(DST).parts) - 1)
     t = h.read_text()
+    # top left reads "Miss Angel Investor" and goes to the MAI home; drop the now-duplicate nav link
+    t = re.sub(r'<a class="wordmark" href="[^"]*">[^<]*</a>', f'<a class="wordmark" href="{rel}../index.html">Miss Angel Investor</a>', t, count=1)
+    t = re.sub(r'\s*<a href="(\.\./)+index\.html">Miss Angel Investor</a>', "", t)
     if "mai-theme.css" not in t:
         h.write_text(t.replace("</head>", f'<link rel="stylesheet" href="{rel}mai-theme.css">\n</head>', 1))
 
