@@ -51,6 +51,14 @@ p.write_text(s)
 for f in ["founders-linkedin.json", "founders-websites.json", "fund-linkedin.json", "fund-websites.json", "people-linkedin.json", "robots.txt"]:
     (DST / f).unlink(missing_ok=True)
 
+# Miss Angel Investor branding: load mai-theme.css last on every page
+shutil.copy2(SRC / "mai-theme.css", DST / "mai-theme.css")
+for h in DST.rglob("*.html"):
+    rel = "../" * (len(h.relative_to(DST).parts) - 1)
+    t = h.read_text()
+    if "mai-theme.css" not in t:
+        h.write_text(t.replace("</head>", f'<link rel="stylesheet" href="{rel}mai-theme.css">\n</head>', 1))
+
 # root robots.txt points at the map sitemap
 (MAI / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}sitemap.xml\n")
 print("synced to", DST)

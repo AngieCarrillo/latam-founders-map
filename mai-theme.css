@@ -1,0 +1,61 @@
+/* Miss Angel Investor theme for the map copy at missangelinvestor.com/map/.
+   Loaded last by sync_mai.py. White page, brand green #1a6b30 as the only accent,
+   Ivy Presto Headline for display, Plus Jakarta Sans for body (same as the MAI site). */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@font-face { font-family: "Ivy Presto Headline"; src: local("IvyPrestoHeadline-Thin"), local("Ivy Presto Headline Thin"), url("/fonts/ivyprestoheadline-thin.woff") format("woff"), url("/fonts/ivyprestoheadline-thin.ttf") format("truetype"); font-weight: 100 900; font-style: normal; font-display: swap; }
+
+:root {
+  --color-paper: #ffffff; --color-paper-2: #f6f7f5; --color-paper-3: #fafbf9;
+  --color-ink: #111312; --color-ink-2: #2b2e2c; --color-muted: #5d625f;
+  --color-rule: #e7e9e6; --color-lime-soft: #edf4ee; --color-on-ink: #ffffff; --color-on-ink-muted: #b9c2bc;
+  --color-accent: #1a6b30; --color-accent-ink: #ffffff; --color-focus: #1a6b30;
+  --color-coral-ink: #1a6b30; --color-aurora-blue: #0d3a1b;
+  --map-0: #eef0ed; --map-1: #d3e6d8; --map-2: #9ccaa8; --map-3: #4f9a62; --map-4: #1a6b30;
+  --font-display: "Ivy Presto Headline", "IvyPresto Headline", Georgia, "Times New Roman", serif;
+  --font-body: "Plus Jakarta Sans", "Proxima Nova", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-outlier: var(--font-body);
+}
+body { background: #ffffff; color: var(--color-ink); font-family: var(--font-body); }
+
+/* nav like the MAI site: white, hairline, muted links, green pill */
+.nav { background: rgba(255,255,255,.92); backdrop-filter: blur(12px); color: var(--color-ink); border-bottom: 1px solid var(--color-rule); }
+.wordmark { color: var(--color-ink); }
+.nav-links a { color: var(--color-muted); }
+.nav-links a:hover { color: var(--color-ink); }
+.nav .btn, .nav-links a.btn { color: #fff; border-color: var(--color-accent); }
+
+/* buttons: green with white text, deep green on hover */
+.btn { background: var(--color-accent); color: #fff; border-color: var(--color-accent); font-family: var(--font-body); font-weight: 600; }
+.btn:hover { background: #0d3a1b; border-color: #0d3a1b; color: #fff; }
+.btn.btn-alt { background: transparent; color: var(--color-ink); border-color: var(--color-rule); }
+.btn.btn-alt:hover { border-color: var(--color-accent); color: var(--color-accent); background: transparent; }
+.chip[aria-pressed="true"] { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.textlink { text-decoration-color: var(--color-accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+/* globes in brand greens */
+.g-sphere { fill: #f6f7f5; }
+.g-grat { stroke: #ffffff; }
+.g-land { fill: #e3e7e4; stroke: #ffffff; }
+.g-land.has { fill: #a9cdb3; }
+.i-land { fill: #eceeeb; stroke: #ffffff; }
+svg.map path.sel, .i-land.sel { fill: #0d3a1b !important; stroke: #0d3a1b; }
+svg.map text.on-sel, .i-labels text.on-sel { fill: #ffffff; }
+.f-route { background: var(--color-lime-soft); color: var(--color-accent); }
+.f-role { border-color: var(--color-accent); color: var(--color-accent); }
+
+/* footer like the MAI site: soft grey, ink text */
+.footer { background: #f6f7f5; color: var(--color-ink); border-top: 1px solid var(--color-rule); }
+.footer a { color: var(--color-ink); }
+.footer a:hover { color: var(--color-accent); }
+.footer small { color: var(--color-muted); }
+
+/* dark band in deep brand green, big figures in a light green that reads on it */
+.band-ink { background: #0d3a1b; color: #ffffff; }
+.band-ink .figures b, .band-ink .receipts b { color: #a9d8b5; }
+.band-ink small, .band-ink .muted { color: #c7dccd; }
+.f-bridge { background: #0d3a1b; }
+
+/* phones: keep the wordmark on one line; the wordmark already links home */
+.wordmark { white-space: nowrap; }
+@media (max-width: 600px) { .nav-links a[href$="index.html"]:not(.btn) { display: none; } }
