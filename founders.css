@@ -131,3 +131,4 @@ svg.globe:active { cursor: grabbing; }
 .fp-notes li { counter-increment: n; display: grid; grid-template-columns: 22px 1fr; gap: 6px; line-height: 1.45; }
 .fp-notes li::before { content: counter(n); font-size: var(--text-xs); color: var(--color-muted); padding-top: 3px; }
 .player .iname{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.player .iname:hover{opacity:.7}
+.player .pname{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}.player .pname:hover{opacity:.7}
