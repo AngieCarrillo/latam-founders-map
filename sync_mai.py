@@ -19,7 +19,8 @@ if DST.exists():
     shutil.rmtree(DST)
 DST.mkdir(parents=True)
 for f in ["index.html", "base.css", "site.css", "tokens.css", "founders.css", "founders.js",
-          "founders-data.js", "invglobe.js", "founders-linkedin.json", "founders-websites.json"]:
+          "founders-data.js", "invglobe.js", "founders-linkedin.json", "founders-websites.json",
+          "fund-linkedin.json", "fund-websites.json", "people-linkedin.json", "investors-slugs.js"]:
     shutil.copy2(SRC / f, DST / f)
 shutil.copytree(SRC / "fonts", DST / "fonts")
 
@@ -30,6 +31,11 @@ code = code.replace("ROOT = Path(__file__).resolve().parent", f"ROOT = Path({str
 code = code.replace("Latina Founders Map</a>\n  <nav class=\"nav-links\" aria-label=\"Main\">",
                     "Latina Founders Map</a>\n  <nav class=\"nav-links\" aria-label=\"Main\"><a href=\"../../../index.html\">Miss Angel Investor</a>")
 exec(compile(code, "build_pages.py", "exec"), {"__name__": "__main__"})
+code = (SRC / "build_investors.py").read_text()
+code = re.sub(r'^BASE = .*$', f'BASE = "{BASE}"', code, count=1, flags=re.M)
+code = code.replace("ROOT = Path(__file__).resolve().parent", f"ROOT = Path({str(DST)!r})")
+code = code.replace('HOME_LINK = ""', 'HOME_LINK = "yes"')
+exec(compile(code, "build_investors.py", "exec"), {"__name__": "__main__"})
 
 # map header: link back to the MAI home
 p = DST / "index.html"
@@ -42,7 +48,7 @@ if "<link rel=\"canonical\"" not in s:
     s = s.replace("</title>", f"</title>\n<link rel=\"canonical\" href=\"{BASE}\">", 1)
 p.write_text(s)
 
-for f in ["founders-linkedin.json", "founders-websites.json", "robots.txt"]:
+for f in ["founders-linkedin.json", "founders-websites.json", "fund-linkedin.json", "fund-websites.json", "people-linkedin.json", "robots.txt"]:
     (DST / f).unlink(missing_ok=True)
 
 # root robots.txt points at the map sitemap

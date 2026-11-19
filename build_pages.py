@@ -23,6 +23,8 @@ LI = json.loads((ROOT / "founders-linkedin.json").read_text())
 WEB = json.loads((ROOT / "founders-websites.json").read_text()) if (ROOT / "founders-websites.json").exists() else {}
 INDEX = (ROOT / "index.html").read_text()
 PEOPLE = json.loads(re.search(r"const PEOPLE=(\{.*?\});", INDEX).group(1))
+_is = ROOT / "investors-slugs.js"
+ISLUG = json.loads(re.search(r"window\.ISLUG=(\{.*?\});", _is.read_text()).group(1)) if _is.exists() else {}
 
 SOURCES = {
     1: ("Startupeable’s Diaspora map", "https://www.startupeable.com/diaspora/"),
@@ -186,7 +188,7 @@ def page(f):
   </div>
  </div>
 </section>
-{f'''<section class="section tight"><div class="container"><h2 class="fp-h2">Investors on the map who backed her</h2><ul class="fp-list">{"".join(f"<li>{e(i)}</li>" for i in inv)}</ul></div></section>''' if inv else ''}
+{f'''<section class="section tight"><div class="container"><h2 class="fp-h2">Investors on the map who backed her</h2><ul class="fp-list">{"".join(f'<li><a href="../../investors/{ISLUG[i]}/">{e(i)}</a></li>' if i in ISLUG else f"<li>{e(i)}</li>" for i in inv)}</ul></div></section>''' if inv else ''}
 <section class="section tight">
  <div class="container">
   <h2 class="fp-h2">More Latina founders from {e(cname(o))}</h2>
