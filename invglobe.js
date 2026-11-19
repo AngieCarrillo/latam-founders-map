@@ -17,7 +17,7 @@
   const recount = () => {
     live = {};
     D.forEach(p => {
-      if ((activeCats.size && !activeCats.has(p.c)) || (stageSel && !(STAGE[p.n] || "").includes(stageSel))) return;
+      if ((activeCats.size && !activeCats.has(p.c)) || (stageSel && !(STAGE[p.n] || "").includes(stageSel)) || (leadOnly && !(TERMS[p.n] && TERMS[p.n].lead))) return;
       live[p.k] = (live[p.k] || 0) + 1;
     });
   };

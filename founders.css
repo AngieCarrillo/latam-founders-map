@@ -117,3 +117,6 @@ svg.globe:active { cursor: grabbing; }
 .fp-peers span { font-size: var(--text-xs); color: var(--color-muted); }
 .btn.btn-alt { background: transparent; }
 .btn.btn-alt:hover { background: var(--color-ink); color: var(--color-on-ink); }
+
+.player .terms{display:block;font-size:12px;font-weight:600;color:var(--color-ink);margin-top:2px}
+.chip-lead{margin-left:.5rem}
