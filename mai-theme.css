@@ -59,3 +59,6 @@ svg.map text.on-sel, .i-labels text.on-sel { fill: #ffffff; }
 /* phones: keep the wordmark on one line; the wordmark already links home */
 .wordmark { white-space: nowrap; }
 @media (max-width: 600px) { .nav-links a[href$="index.html"]:not(.btn) { display: none; } }
+
+/* no "Made by" line on the MAI site */
+.footer .closing { display: none; }
