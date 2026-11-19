@@ -120,3 +120,12 @@ svg.globe:active { cursor: grabbing; }
 
 .player .terms{display:block;font-size:12px;font-weight:600;color:var(--color-ink);margin-top:2px}
 .chip-lead{margin-left:.5rem}
+
+/* founder brief: in short + numbered notes */
+.fp-brief { display: grid; gap: var(--space-md); }
+.fp-short { position: relative; border: 1.5px solid var(--color-ink); border-radius: 14px; padding: 18px 16px 14px; }
+.fp-short span { position: absolute; top: -9px; left: 12px; padding: 0 6px; background: var(--color-paper); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fp-short p { margin: 0; font-family: var(--font-display); font-size: var(--text-xl); line-height: 1.3; }
+.fp-notes { margin: 0; padding: 0; list-style: none; counter-reset: n; display: grid; gap: 10px; }
+.fp-notes li { counter-increment: n; display: grid; grid-template-columns: 22px 1fr; gap: 6px; line-height: 1.45; }
+.fp-notes li::before { content: counter(n); font-size: var(--text-xs); color: var(--color-muted); padding-top: 3px; }

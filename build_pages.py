@@ -73,6 +73,43 @@ for r in FW:
     used.add(slug)
     founders.append({"r": r, "slug": slug})
 
+def first_sentence(t):
+    m = re.match(r"(.+?[.!?])(\s|$)", t)
+    return (m.group(1) if m else t).strip()
+
+
+def brief(r, company):
+    """In short + up to 3 notes, built only from data we hold."""
+    name, src, o, dp, city, desc = r[0], r[1], r[2], r[4], r[5], (r[8] if len(r) > 8 else "") or ""
+    builds = city if src == 2 else (f"{city}, {cname(dp)}" if city != cname(dp) else cname(dp))
+    parts = [x.strip() for x in r[3].split(" · ")] if src == 2 else []
+    notes = []
+    if src == 5:  # "Sector · $X raised · Stage"
+        bits = [b.strip() for b in desc.split(" · ") if b.strip()]
+        sector = bits[0] if bits else ""
+        short = f"Founder of {company}, a {sector.lower()} company in {city}." if sector else f"Founder of {company}, building in {city}."
+        if len(bits) > 1:
+            notes.append(f"{company} has raised {bits[1].replace(' raised','')}" + (f", latest round {bits[2]}." if len(bits) > 2 else "."))
+    elif desc:
+        short = first_sentence(desc)
+        rest = desc[len(short):].strip()
+        if rest:
+            notes.append(rest)
+    else:
+        short = f"Founder of {company}, building in {builds}."
+    if src == 2 and len(parts) >= 3:
+        notes.append(f"{parts[1]} company at {parts[2].lower()} stage, picked for Aurora’s Top 30 Women Founders to Watch in LatAm.")
+    if o != dp:
+        notes.append(f"Started in {cname(o)}, builds in {builds} today.")
+    else:
+        notes.append(f"Started and builds in {builds if src != 2 else cname(dp)}.")
+    inv = backers.get(name, [])
+    if inv:
+        more = f" and {len(inv) - 3} more" if len(inv) > 3 else ""
+        notes.append(f"Backed by {', '.join(inv[:3])}{more} on the investor map.")
+    return short, notes[:3]
+
+
 css = '<link rel="stylesheet" href="../../site.css">\n<link rel="stylesheet" href="../../founders.css">'
 
 
@@ -81,6 +118,7 @@ def page(f):
     name, src, o, dp, city = r[0], r[1], r[2], r[4], r[5]
     company = company_of(r)
     desc_extra = r[8] if len(r) > 8 and r[8] else ""
+    short, notes = brief(r, company)
     started = f"{flag(FC[o][1])} {cname(o)}"
     builds = city if src == 2 else (f"{city}, {cname(dp)}" if city not in (cname(dp),) else cname(dp))
     moved = o != dp
@@ -89,7 +127,7 @@ def page(f):
     li_label = "View her LinkedIn profile" if li else "Find her on LinkedIn"
     title = f"{name}, founder of {company} | Latina Founders Map"
     route = f"from {cname(o)}, building in {builds}" if moved else f"building in {builds}"
-    meta = f"{name} is the founder of {company}, {route}. See her investors and more Latina founders on the Latina Founders Map."
+    meta = f"{name}, founder of {company}: {short} See her investors and more Latina founders on the Latina Founders Map."
     url = f"{BASE}founders/{f['slug']}/"
     peers = [g for g in founders if g is not f and g["r"][2] == o][:8]
     inv = backers.get(name, [])
@@ -140,14 +178,12 @@ def page(f):
    <p class="eyebrow-task">Founder profile</p>
    <h1>{e(name)}</h1>
    <p class="lead">Founder of <b>{e(company)}</b>, {e(route)}.</p>
-   {f'<p class="fp-desc">{e(desc_extra)}</p>' if desc_extra else ''}
    <div class="actions"><a class="btn" href="{e(li_url)}" rel="noopener" target="_blank">{li_label}</a>{f'<a class="btn btn-alt" href="{e(site)}" rel="noopener" target="_blank">Visit {e(company)}</a>' if site else ''}{f'<a class="btn btn-alt" href="{e(crunch)}" rel="noopener" target="_blank">{e(company)} on Crunchbase</a>' if crunch else ''}<a class="textlink" href="../../#founders">See her on the map</a></div>
   </div>
-  <dl class="fp-facts">
-   <div><dt>Where she started</dt><dd>{e(started)}</dd></div>
-   <div><dt>Where she builds today</dt><dd>{e(builds)}</dd></div>
-   <div><dt>Company</dt><dd>{e(company)}</dd></div>
-  </dl>
+  <div class="fp-brief">
+   <div class="fp-short"><span>In short</span><p>{e(short)}</p></div>
+   <ol class="fp-notes">{"".join(f"<li>{e(n)}</li>" for n in notes)}</ol>
+  </div>
  </div>
 </section>
 {f'''<section class="section tight"><div class="container"><h2 class="fp-h2">Investors on the map who backed her</h2><ul class="fp-list">{"".join(f"<li>{e(i)}</li>" for i in inv)}</ul></div></section>''' if inv else ''}
