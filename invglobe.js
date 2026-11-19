@@ -53,16 +53,47 @@
       .text(d => n(d.f));
   }
   function rotateTo(name) {
+    if (typeof motion !== "undefined") motion.pause(1100);
     const d = labelled.find(x => nm(x.f) === name); if (!d) return;
     const from = proj.rotate(), to = [-d.ll[0], Math.max(-60, Math.min(60, -d.ll[1])), 0];
     if (reduce) { proj.rotate(to); draw(); return; }
     const it = d3.interpolate(from, to);
     d3.transition().duration(800).ease(d3.easeCubicInOut).tween("rot", () => t => { proj.rotate(it(t)); draw(); });
   }
-  svg.call(d3.drag().on("drag", e => {
-    const r = proj.rotate(), k = 75 / proj.scale();
-    proj.rotate([r[0] + e.dx * k, Math.max(-80, Math.min(80, r[1] - e.dy * k)), 0]); draw();
-  }));
+
+  /* Motion: slow spin, flick with inertia, pause while hovered, dragged or a country is open. Colors and counts unchanged. */
+  function addMotion(draw, locked) {
+    const m = { start() {}, move() {}, end() {}, pause() {} };
+    if (reduce) return m;
+    let dragging = false, hover = false, until = 0, v = 0, vy = 0, prev = performance.now();
+    const node = svg.node();
+    node.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hover = true; });
+    node.addEventListener("pointerleave", () => { hover = false; until = performance.now() + 1500; });
+    d3.timer(now => {
+      const dt = Math.min(now - prev, 50); prev = now;
+      if (dragging || document.hidden || now < until) return;
+      const r = proj.rotate();
+      if (Math.abs(v) > 0.02 || Math.abs(vy) > 0.02) {
+        proj.rotate([r[0] + v, Math.max(-80, Math.min(80, r[1] + vy)), 0]); v *= 0.94; vy *= 0.94; draw(); return;
+      }
+      if (hover || locked()) return;
+      proj.rotate([r[0] + dt * 0.006, r[1], 0]); draw();
+    });
+    m.start = () => { dragging = true; v = vy = 0; };
+    m.move = (dx, dy) => { v = dx; vy = dy; };
+    m.end = () => { dragging = false; until = 0; };
+    m.pause = ms => { v = vy = 0; until = performance.now() + ms; };
+    return m;
+  }
+  var motion = addMotion(draw, () => picked && current !== "Global");
+  svg.call(d3.drag()
+    .on("start", () => motion.start())
+    .on("drag", e => {
+      const r = proj.rotate(), k = 75 / proj.scale();
+      proj.rotate([r[0] + e.dx * k, Math.max(-80, Math.min(80, r[1] - e.dy * k)), 0]); draw();
+      motion.move(e.dx * k, -e.dy * k);
+    })
+    .on("end", () => motion.end()));
   const zoom = f => { proj.scale(Math.max(R0 * 0.8, Math.min(R0 * 4, proj.scale() * f))); draw(); };
   document.getElementById("iZoomIn").onclick = () => zoom(1.3);
   document.getElementById("iZoomOut").onclick = () => zoom(1 / 1.3);
@@ -70,10 +101,11 @@
 
   // keep the globe in step with the investor panel
   const base = render;
-  let lastCurrent = null;
+  var lastCurrent = null, picked = false;
   render = function () {
     base(); recount(); draw();
     // only spin the globe when the country changes, not when a filter changes
+    if (lastCurrent !== null && current !== lastCurrent) picked = true;
     if (current !== "Global" && current !== lastCurrent) rotateTo(current);
     lastCurrent = current;
   };
