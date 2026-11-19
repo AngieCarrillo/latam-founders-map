@@ -119,6 +119,7 @@ svg.globe:active { cursor: grabbing; }
 .btn.btn-alt:hover { background: var(--color-ink); color: var(--color-on-ink); }
 
 .player .terms{display:block;font-size:12px;font-weight:600;color:var(--color-ink);margin-top:2px}
+.player .who{display:block;font-size:12px;margin-top:3px;color:var(--color-ink)}.player .who a{color:inherit;text-decoration:underline;text-underline-offset:2px}.player .who .li{font-size:11px;opacity:.7}.player .who .src{opacity:.7}
 .chip-lead{margin-left:.5rem}
 
 /* founder brief: in short + numbered notes */
