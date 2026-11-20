@@ -31,7 +31,7 @@ FLI, FWEB, PLI = load("fund-linkedin.json"), load("fund-websites.json"), load("p
 e = lambda s: html.escape(str(s), quote=True)
 
 GENERAL = [
-    ("Aurora’s 100-VC list", "https://app.notion.com/p/100-VC-s-Backing-Women-Founders-in-Latin-America-Africa-MENA-3a6732f3d82a8018b80aef780e88e402"),
+    ("Aurora’s 100-VC list", "https://www.auroratechaward.com/vc-list"),
     ("LAVCA’s Top & Emerging Women Investors in Latin America", "https://www.lavca.org/"),
     ("public funding announcements", None),
 ]
